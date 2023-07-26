@@ -1,0 +1,38 @@
+/* styles.css */
+
+/* Estilos para el contenido */
+.container {
+    padding-top: 20px;
+    padding-bottom: 20px;
+}
+
+/* Estilos para el menú */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+}
+
+.navbar-nav {
+    display: flex;
+    list-style: none;
+    padding: 0;
+}
+
+.nav-item {
+    margin-right: 10px;
+}
+
+/* Estilos para las vistas específicas */
+
+/* listar_propiedades.html */
+.propiedad-card {
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    margin-bottom: 20px;
+}
+
+/* crear_propietario.html y crear_propiedad.html */
+.form-group {
+    margin-bottom: 20px;
+}

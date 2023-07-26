@@ -1,0 +1,64 @@
+{% load static %} 
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Biblioteca Digital</title>
+    <!-- Agrega el enlace al archivo CSS de Bootstrap y estilos personalizados -->
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">     
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}">
+</head>
+<body>
+<div class="container content-wrapper">
+<nav class="navbar navbar-expand-md navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">Repositorio de Archivos</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav">
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="propMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Propietarios</a>
+                    <ul class="dropdown-menu" aria-labelledby="propMenu">
+                        <li><a class="dropdown-item" href="{% url 'crear_propietario' %}">Ingresar Propietario</a></li>
+                        <li><a class="dropdown-item" href="{% url 'listar_propietarios' %}">Listado de Propietarios</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="propMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Propiedades</a>
+                    <ul class="dropdown-menu" aria-labelledby="propMenu">
+                        <li><a class="nav-link" href="{% url 'crear_propiedad' %}">Ingresar Propiedad</a></li>
+                        <li><a class="nav-link" href="{% url 'listar_propiedades' %}">Listar Propiedades</a></li>
+                    </ul>
+                </li>
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="propMenu" role="button" data-bs-toggle="dropdown" aria-expanded="false">Tipos de Documentos</a>
+                    <ul class="dropdown-menu" aria-labelledby="propMenu">
+                        <li><a class="nav-link" href="{% url 'crear_tipo_documento' %}">Ingresar Tipo Documento</a></li>
+                        <li><a class="nav-link" href="{% url 'listar_tipos_documentos' %}">Listar Tipos de Documentos</a></li>
+                    </ul>
+                </li>
+                <!-- Agrega más elementos de menú según tus necesidades -->
+            </ul>
+        </div>
+    </div>
+</nav>
+</div>
+    
+<div class="container content-wrapper">
+    {% block contenido %}
+    {% endblock %}
+</div>
+
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    
+</body>
+</html>
+
+

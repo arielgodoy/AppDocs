@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+
+{% block contenido %}
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Listado de Tipos de Documentos</h1>
+    <a href="{% url 'crear_tipo_documento' %}" class="btn btn-success">Agregar Tipo de Documento</a>
+  </div>
+  
+  <table class="table">
+    <thead>
+      <tr>
+        <th>Tipo de Documento</th>
+        <th>Modificar</th>
+        <th>Eliminar</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for tipo_documento in tipos_documentos %}
+        <tr>
+          <td>{{ tipo_documento.nombre }}</td>
+          <td>
+            <a href="{% url 'modificar_tipo_documento' tipo_documento.pk %}" class="btn btn-primary btn-sm">Modificar</a>
+          </td>
+          <td>
+            <a href="{% url 'eliminar_tipo_documento' tipo_documento.pk %}" class="btn btn-danger btn-sm">Eliminar</a>
+          </td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% endblock %}
