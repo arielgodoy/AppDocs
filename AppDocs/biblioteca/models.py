@@ -1,43 +1,24 @@
 # models.py
 
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.contrib.auth.models import User
 
-# class MiUsuarioManager(BaseUserManager):
-#     def create_user(self, email, password=None, **extra_fields):
-#         if not email:
-#             raise ValueError('El email debe ser proporcionado')
-#         email = self.normalize_email(email)
-#         user = self.model(email=email, **extra_fields)
-#         user.set_password(password)
-#         user.save(using=self._db)
-#         return user
+from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Group, Permission
 
-#     def create_superuser(self, email, password=None, **extra_fields):
-#         extra_fields.setdefault('is_staff', True)
-#         extra_fields.setdefault('is_superuser', True)
+class CustomUser(AbstractUser):
+    # Agrega campos personalizados aquí si los necesitas
+    groups = models.ManyToManyField(Group, related_name='custom_users')
+    user_permissions = models.ManyToManyField(Permission, related_name='custom_users')
+    
 
-#         if extra_fields.get('is_staff') is not True:
-#             raise ValueError('Superuser debe tener is_staff=True.')
-#         if extra_fields.get('is_superuser') is not True:
-#             raise ValueError('Superuser debe tener is_superuser=True.')
-
-#         return self.create_user(email, password, **extra_fields)
-
-# class MiUsuario(AbstractBaseUser, PermissionsMixin):
-#     email = models.EmailField(unique=True)
-#     first_name = models.CharField(max_length=30)
-#     last_name = models.CharField(max_length=30)
-#     is_active = models.BooleanField(default=True)
-#     is_staff = models.BooleanField(default=False)
-
-#     objects = MiUsuarioManager()
-
-#     USERNAME_FIELD = 'email'
-#     REQUIRED_FIELDS = ['first_name', 'last_name']
-
-#     def __str__(self):
-#         return self.email
+# Create your models here.
+class Avatar(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE,null=True)
+    imagen = models.ImageField(default='default.jpg',upload_to='avatares',null = True, blank=True)
+    def __str__(self):
+        return f'{self.user} {self.imagen}'
+    
 
 
 class TipoDocumento(models.Model):

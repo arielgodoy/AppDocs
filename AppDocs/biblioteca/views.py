@@ -14,23 +14,45 @@ from django.urls import reverse_lazy
 from .models import TipoDocumento
 from .forms import TipoDocumentoForm
 from django.views.generic import View
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+from django.contrib.auth import authenticate, login,logout
+from django.shortcuts import render, redirect
+
+def login_view(request):
+    if request.method == 'POST':
+        username = request.POST['username']
+        password = request.POST['password']
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('listar_propiedades')  # Redirigir al usuario a la página de inicio después de un login exitoso
+        else:
+            # Mostrar mensaje de error si el login no es válido
+            error_message = "Nombre de usuario o contraseña incorrectos."
+            return render(request, 'login.html', {'error_message': error_message})
+    return render(request, 'login.html')
+
+def logout_view(request):
+    # Vista para realizar el logout (opcional)
+    logout(request)
+    return redirect('login')
 
 
-def vista_login(request):
-    return LoginView.as_view(template_name='login.html')(request)
 
 
-class ListarPropiedadesView(ListView):    
+
+class ListarPropiedadesView(LoginRequiredMixin,ListView):    
     model = Propiedad
     template_name = 'listar_propiedades.html'
     context_object_name = 'propiedades'
 
-class DetallePropiedadView(DetailView):
+class DetallePropiedadView(LoginRequiredMixin,DetailView):
     model = Propiedad
     template_name = 'detalle_propiedad.html'
     context_object_name = 'propiedad'
 
-class CrearDocumentoView(CreateView):
+class CrearDocumentoView(LoginRequiredMixin,CreateView):
     model = Documento
     form_class = DocumentoForm
     template_name = 'crear_documento.html'
@@ -57,28 +79,28 @@ def eliminar_documento(request, pk):
 
 
 
-class CrearPropietarioView(CreateView):
+class CrearPropietarioView(LoginRequiredMixin,CreateView):
     model = Propietario
     form_class = PropietarioForm
     template_name = 'crear_propietario.html'
     success_url = reverse_lazy('crear_propietario')
 
 
-class ListarPropietariosView(ListView):    
+class ListarPropietariosView(LoginRequiredMixin,ListView):    
     model = Propietario
     template_name = 'listar_propietarios.html'
     context_object_name = 'propietarios'
 
-class DetallePropietarioView(DetailView):
+class DetallePropietarioView(LoginRequiredMixin,DetailView):
     model = Propietario
     template_name = 'detalle_propietario.html'
     context_object_name = 'propietario'
 
-class EliminarPropietarioView(DeleteView):
+class EliminarPropietarioView(LoginRequiredMixin,DeleteView):
     model = Propietario
     template_name = 'eliminar_propietario.html'
     success_url = reverse_lazy('listar_propietarios')
-class ModificarPropietarioView(UpdateView):
+class ModificarPropietarioView(LoginRequiredMixin,UpdateView):
     model = Propietario
     form_class = PropietarioForm
     template_name = 'modificar_propietario.html'
@@ -86,14 +108,14 @@ class ModificarPropietarioView(UpdateView):
     # No es necesario el método form_valid
     # ...
 
-class CrearPropiedadView(CreateView):
+class CrearPropiedadView(LoginRequiredMixin,CreateView):
     model = Propiedad
     form_class = PropiedadForm
     template_name = 'crear_propiedad.html'
     success_url = reverse_lazy('crear_propiedad')
 
 
-class EliminarPropiedadView(DeleteView):
+class EliminarPropiedadView(LoginRequiredMixin,DeleteView):
     model = Propiedad
     template_name = 'eliminar_propiedad.html'
     success_url = reverse_lazy('listar_propiedades')
@@ -106,7 +128,7 @@ class EliminarPropiedadView(DeleteView):
         return redirect(self.success_url)
 
 
-class ModificarPropiedadView(UpdateView):
+class ModificarPropiedadView(LoginRequiredMixin,UpdateView):
     model = Propiedad
     form_class = PropiedadForm
     template_name = 'modificar_propiedad.html'
@@ -118,13 +140,13 @@ class ModificarPropiedadView(UpdateView):
         return super().form_valid(form)
 
 
-class CrearTipoDocumentoView(CreateView):
+class CrearTipoDocumentoView(LoginRequiredMixin,CreateView):
     model = TipoDocumento
     form_class = TipoDocumentoForm
     template_name = 'crear_tipo_documento.html'
     success_url = reverse_lazy('listar_tipos_documentos')
 
-class ListarTiposDocumentosView(ListView):
+class ListarTiposDocumentosView(LoginRequiredMixin,ListView):
     model = TipoDocumento
     template_name = 'listar_tipos_documentos.html'
     context_object_name = 'tipos_documentos'
@@ -134,7 +156,7 @@ class ListarTiposDocumentosView(ListView):
 
 
 
-class ModificarTipoDocumentoView(View):
+class ModificarTipoDocumentoView(LoginRequiredMixin,View):
     template_name = 'modificar_tipo_documento.html'
     success_url = reverse_lazy('listar_tipos_documentos')
 
@@ -151,7 +173,7 @@ class ModificarTipoDocumentoView(View):
             return redirect(self.success_url)
         return render(request, self.template_name, {'form': form})
 
-class EliminarTipoDocumentoView(View):
+class EliminarTipoDocumentoView(LoginRequiredMixin,View):
     template_name = 'eliminar_tipo_documento.html'
     success_url = reverse_lazy('listar_tipos_documentos')
 

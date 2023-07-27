@@ -3,6 +3,9 @@
 from django import forms
 from .models import Documento, Propiedad,TipoDocumento,Propietario
 
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm  
+
 class DocumentoForm(forms.ModelForm):
     class Meta:
         model = Documento
@@ -23,3 +26,4 @@ class TipoDocumentoForm(forms.ModelForm):
     class Meta:
         model = TipoDocumento
         fields = '__all__' 
+

@@ -124,7 +124,7 @@ USE_TZ = True
 
 
 
-STATIC_URL = '/static/'
+STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'biblioteca/static'),
@@ -138,7 +138,16 @@ STATICFILES_DIRS = [
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+
+LOGIN_URL = '/login/'  # URL a la vista de login
+LOGIN_REDIRECT_URL = '/'  # URL a la que se redirigirá al usuario después de un login exitoso
+
+
 MEDIA_URL ='/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
 #AUTH_USER_MODEL = 'biblioteca.Users'
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+]

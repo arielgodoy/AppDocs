@@ -6,7 +6,7 @@
     <a href="{% url 'crear_propiedad' %}" class="btn btn-success">Agregar Propiedad</a>
 </div>
 
-<table class="table">
+<table class="table" id="tabla-propiedades">
     <thead>
         <tr>
             <th>Rol</th>
@@ -29,4 +29,12 @@
     </tbody>
 </table>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    $(document).ready(function() {
+        $('#tabla-propiedades').DataTable();
+    });
+</script>
 {% endblock %}

@@ -36,3 +36,32 @@
 .form-group {
     margin-bottom: 20px;
 }
+
+
+
+/* styles.css */
+
+/* Centrar el formulario en la página */
+.login-form {
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+/* Estilos para los mensajes de error */
+.text-danger {
+    color: #dc3545;
+}
+
+/* Estilos para centrar el botón de login */
+.text-center {
+    text-align: center;
+}
+
+/* Estilos para dar un poco de espacio entre los elementos del formulario */
+.form-group {
+    margin-bottom: 15px;
+}
