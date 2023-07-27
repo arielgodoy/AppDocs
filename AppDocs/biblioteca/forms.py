@@ -6,6 +6,18 @@ from .models import Documento, Propiedad,TipoDocumento,Propietario
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm  
 
+
+from django.contrib.auth.forms import AuthenticationForm
+
+class CustomLoginForm(AuthenticationForm):
+    # Aquí puedes agregar campos personalizados si los necesitas
+    # Por ejemplo: campo de recordar contraseña, campo de captcha, etc.
+
+    # Puedes personalizar las etiquetas de los campos y atributos de widgets
+    username = forms.CharField(widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Usuario'}))
+    password = forms.CharField(widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Contraseña'}))
+
+
 class DocumentoForm(forms.ModelForm):
     class Meta:
         model = Documento
