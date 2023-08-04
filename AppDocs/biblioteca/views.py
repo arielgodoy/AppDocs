@@ -62,7 +62,6 @@ def registro_usuario(request):
 def perfil_usuario(request):
     user = request.user
     avatar = Avatar.objects.get(user=user)
-
     if request.method == 'POST':
         form = CustomUserForm(request.POST, instance=user)
         if form.is_valid():
@@ -70,7 +69,6 @@ def perfil_usuario(request):
             return redirect('perfil') 
     else:
         form = CustomUserForm(instance=user)
-
     return render(request, 'perfil_usuario.html', {'user': user, 'avatar': avatar, 'form': form})
 
 
