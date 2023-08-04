@@ -26,6 +26,17 @@ urlpatterns = [
     path('listar_tipos_documentos/', views.ListarTiposDocumentosView.as_view(), name='listar_tipos_documentos'),
     path('modificar_tipo_documento/<int:pk>/', views.ModificarTipoDocumentoView.as_view(), name='modificar_tipo_documento'),
     path('eliminar_tipo_documento/<int:pk>/', views.EliminarTipoDocumentoView.as_view(), name='eliminar_tipo_documento'),
+
+
+
+
+    path('conversaciones/', views.lista_conversaciones, name='lista_conversaciones'),
+    path('conversaciones/<int:conversacion_id>/enviar-mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
+    path('conversaciones/crear/', views.crear_conversacion, name='crear_conversacion'),
+    path('conversaciones/<int:conversacion_id>/', views.detalle_conversacion, name='detalle_conversacion'),
+
+    
+
     
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),

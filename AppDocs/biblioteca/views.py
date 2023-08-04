@@ -4,7 +4,7 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from .models import Propiedad, Documento,Propietario
+from .models import Propiedad, Documento,Propietario,Conversacion,Mensaje
 from .forms import DocumentoForm,PropietarioForm,PropiedadForm
 from django.urls import reverse
 from django.urls import reverse_lazy
@@ -15,9 +15,10 @@ from .models import TipoDocumento
 from .forms import TipoDocumentoForm
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .forms import MensajeForm,ConversacionForm, EnviarMensajeForm
 
 def login_view(request):
     if request.method == 'POST':
@@ -185,3 +186,60 @@ class EliminarTipoDocumentoView(LoginRequiredMixin,View):
         tipo_documento = get_object_or_404(TipoDocumento, pk=pk)
         tipo_documento.delete()
         return redirect(self.success_url)
+
+
+
+
+
+
+
+@login_required
+def lista_conversaciones(request):    
+    conversaciones = Conversacion.objects.filter(participantes=request.user)   
+    
+    print(conversaciones)
+    return render(request, 'lista_conversaciones.html', {'conversaciones': conversaciones})
+
+@login_required
+def enviar_mensaje(request, conversacion_id):
+    conversacion = get_object_or_404(Conversacion, id=conversacion_id, participantes=request.user)
+    form = MensajeForm(request.POST or None)
+    
+    if request.method == 'POST' and form.is_valid():
+        mensaje = form.save(commit=False)
+        mensaje.conversacion = conversacion
+        mensaje.remitente = request.user
+        mensaje.save()
+        return redirect('detalle_conversacion', conversacion_id=conversacion_id)
+
+    return render(request, 'enviar_mensaje.html', {'conversacion': conversacion, 'form': form})
+
+@login_required
+def crear_conversacion(request):
+    if request.method == 'POST':
+        form = ConversacionForm(request.POST, user=request.user)
+        if form.is_valid():
+            conversacion = form.save()
+            # Imprime el ID de la nueva conversación para verificar que se está generando y guardando correctamente
+            print(f"ID de la nueva conversación: {conversacion.id}")
+            return redirect('detalle_conversacion', conversacion_id=conversacion.id)
+    else:
+        form = ConversacionForm(user=request.user)
+
+    return render(request, 'crear_conversacion.html', {'form': form})
+
+@login_required
+def detalle_conversacion(request, conversacion_id):
+    conversacion = get_object_or_404(Conversacion, id=conversacion_id, participantes=request.user)
+    mensajes = Mensaje.objects.filter(conversacion=conversacion)
+
+    if request.method == 'POST':
+        form = EnviarMensajeForm(request.POST)
+        if form.is_valid():
+            mensaje = Mensaje(contenido=form.cleaned_data['contenido'], conversacion=conversacion, remitente=request.user)
+            mensaje.save()
+            return redirect('detalle_conversacion', conversacion_id=conversacion_id)
+    else:
+        form = EnviarMensajeForm()
+
+    return render(request, 'detalle_conversacion.html', {'conversacion': conversacion, 'mensajes': mensajes, 'form': form})
