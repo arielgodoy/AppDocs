@@ -40,6 +40,9 @@ urlpatterns = [
     
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
+    path('registro/', views.registro_usuario, name='registro_usuario'),
+    path('perfil/', views.perfil_usuario, name='perfil'),
+    path('subeavatar', views.subeAvatar, name='subeavatar'),
 ]
 
 

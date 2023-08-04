@@ -12,13 +12,17 @@ from django.contrib.auth.views import LoginView
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from .models import TipoDocumento
-from .forms import TipoDocumentoForm
+from .forms import TipoDocumentoForm,CustomUserForm,AvatarForm
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import MensajeForm,ConversacionForm, EnviarMensajeForm
+
+from django.contrib.auth.forms import UserCreationForm
+from .models import Avatar
+from .models import CustomUser
 
 def login_view(request):
     if request.method == 'POST':
@@ -38,6 +42,36 @@ def logout_view(request):
     # Vista para realizar el logout (opcional)
     logout(request)
     return redirect('login')
+
+def registro_usuario(request):
+    if request.method == 'POST':
+        form = UserCreationForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            # Crear un avatar para el usuario recién registrado
+            avatar = Avatar(user=user)
+            avatar.save()
+            # Iniciar sesión al crear la cuenta
+            login(request, user)
+            return redirect('listar_propiedades')  # Cambia 'perfil' por el nombre de la vista a la que rediriges después del registro
+    else:
+        form = UserCreationForm()
+    return render(request, 'registro_usuario.html', {'form': form})
+
+@login_required
+def perfil_usuario(request):
+    user = request.user
+    avatar = Avatar.objects.get(user=user)
+
+    if request.method == 'POST':
+        form = CustomUserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('perfil') 
+    else:
+        form = CustomUserForm(instance=user)
+
+    return render(request, 'perfil_usuario.html', {'user': user, 'avatar': avatar, 'form': form})
 
 
 
@@ -67,6 +101,7 @@ class CrearDocumentoView(LoginRequiredMixin,CreateView):
     def get_success_url(self):
         return reverse_lazy('detalle_propiedad', kwargs={'pk': self.object.propiedad.pk})
 
+@login_required
 def eliminar_documento(request, pk):
     # Obtener el documento a eliminar
     documento = get_object_or_404(Documento, pk=pk)
@@ -243,3 +278,14 @@ def detalle_conversacion(request, conversacion_id):
         form = EnviarMensajeForm()
 
     return render(request, 'detalle_conversacion.html', {'conversacion': conversacion, 'mensajes': mensajes, 'form': form})
+
+def subeAvatar(request):
+    avatar = request.user.avatar
+    if request.method == 'POST':
+        form = AvatarForm(request.POST, request.FILES, instance=avatar)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_propiedades') 
+    else:
+        form = AvatarForm(instance=avatar)
+    return render(request, 'upload_avatar.html', {'form': form})

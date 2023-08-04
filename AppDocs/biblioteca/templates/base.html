@@ -2,21 +2,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Biblioteca Digital</title>
-    <!-- Agrega el enlace al archivo CSS de Bootstrap y estilos personalizados -->
+    <title>Biblioteca Digital</title>    
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">     
     <link rel="stylesheet" href="{% static 'css/styles.css' %}">
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/dataTables.bootstrap4.min.css">
-
-
 </head>
 <body>
 <div class="container content-wrapper">
 {% if user.is_authenticated %}
 <nav class="navbar navbar-expand-md navbar-light bg-light">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">Repositorio de Archivos</a>
+        <a class="navbar-brand" href="{% url 'perfil' %}"> 
+            {% if request.user.is_authenticated %}
+            {% if request.user.avatar.imagen.url %}
+            <img  class="rounded-circle" src="{{ request.user.avatar.imagen.url }}" style="max-width: 2em; margin-right: 20px;"></img>
+            {% endif%}
+            <p class="text-muted small mb-4 mb-lg-0">{{ user.username }} </p>
+            {% endif%}
+          </a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -56,15 +59,17 @@
 
             </ul>
         </div>
-        <div class="d-flex">
-            {% if request.user.is_authenticated %}
-            <ul class="navbar-nav">
-                <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="btn btn-danger">Salir</a>
-                </li>
-            </ul>
-            {% endif %}
-          </div>
+        <!-- Botón para el perfil de usuario -->
+            <div class="text-end mt-3">
+                <a href="{% url 'perfil' %}" class="btn btn-secondary">
+                    <i class="fas fa-user"></i> Perfil
+                </a>
+                <a href="{% url 'logout' %}" class="btn btn-primary ms-2">
+                    Salir
+                </a>
+                <li><a class="dropdown-item" href="{%url 'subeavatar' %}">Sube avatar</a></li>   
+            </div>
+        
     </div>
 </nav>
 {% endif %} 
