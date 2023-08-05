@@ -34,15 +34,18 @@ urlpatterns = [
     path('conversaciones/<int:conversacion_id>/enviar-mensaje/', views.enviar_mensaje, name='enviar_mensaje'),
     path('conversaciones/crear/', views.crear_conversacion, name='crear_conversacion'),
     path('conversaciones/<int:conversacion_id>/', views.detalle_conversacion, name='detalle_conversacion'),
+    path('conversacion/<int:conversacion_id>/eliminar/', views.eliminar_conversacion, name='eliminar_conversacion'),
+
 
     
 
     
     path('login/', views.login_view, name='login'),
     path('logout/', views.logout_view, name='logout'),
-    path('registro/', views.registro_usuario, name='registro_usuario'),
-    path('perfil/', views.perfil_usuario, name='perfil'),
+    path('registro/', views.registro_usuario, name='registro_usuario'),    
     path('subeavatar', views.subeAvatar, name='subeavatar'),
+    path('cambiar-password/', views.cambiar_password, name='cambiar_password'),
+    path('about/', views.about, name='about'),
 ]
 
 

@@ -12,7 +12,7 @@ from django.contrib.auth.views import LoginView
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from .models import TipoDocumento
-from .forms import TipoDocumentoForm,CustomUserForm,AvatarForm
+from .forms import TipoDocumentoForm,AvatarForm
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth import authenticate, login,logout
@@ -23,6 +23,9 @@ from .forms import MensajeForm,ConversacionForm, EnviarMensajeForm
 from django.contrib.auth.forms import UserCreationForm
 from .models import Avatar
 from .models import CustomUser
+from .forms import CustomUserForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
 
 def login_view(request):
     if request.method == 'POST':
@@ -47,29 +50,16 @@ def registro_usuario(request):
     if request.method == 'POST':
         form = UserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            # Crear un avatar para el usuario recién registrado
-            avatar = Avatar(user=user)
-            avatar.save()
-            # Iniciar sesión al crear la cuenta
-            login(request, user)
-            return redirect('listar_propiedades')  # Cambia 'perfil' por el nombre de la vista a la que rediriges después del registro
+            form.save()
+            username = form.cleaned_data.get('username')
+            messages.success(request, f'Usuario {username} creado con éxito. Por favor, inicia sesión.')
+            return redirect('registro_usuario')
     else:
         form = UserCreationForm()
     return render(request, 'registro_usuario.html', {'form': form})
 
-@login_required
-def perfil_usuario(request):
-    user = request.user
-    avatar = Avatar.objects.get(user=user)
-    if request.method == 'POST':
-        form = CustomUserForm(request.POST, instance=user)
-        if form.is_valid():
-            form.save()
-            return redirect('perfil') 
-    else:
-        form = CustomUserForm(instance=user)
-    return render(request, 'perfil_usuario.html', {'user': user, 'avatar': avatar, 'form': form})
+
+
 
 
 
@@ -91,8 +81,7 @@ class CrearDocumentoView(LoginRequiredMixin,CreateView):
     template_name = 'crear_documento.html'
     success_url = reverse_lazy('listar_propiedades')
 
-    def form_valid(self, form):
-        # Guardar los cambios en la propiedad
+    def form_valid(self, form):        
         propiedad = form.save()
         return super().form_valid(form)
 
@@ -100,14 +89,9 @@ class CrearDocumentoView(LoginRequiredMixin,CreateView):
         return reverse_lazy('detalle_propiedad', kwargs={'pk': self.object.propiedad.pk})
 
 @login_required
-def eliminar_documento(request, pk):
-    # Obtener el documento a eliminar
-    documento = get_object_or_404(Documento, pk=pk)
-
-    # Eliminar el documento
-    documento.delete()
-
-    # Redireccionar a la página de detalles de la propiedad
+def eliminar_documento(request, pk):    
+    documento = get_object_or_404(Documento, pk=pk)    
+    documento.delete()    
     return redirect('detalle_propiedad', pk=documento.propiedad.pk)
 
 
@@ -184,10 +168,6 @@ class ListarTiposDocumentosView(LoginRequiredMixin,ListView):
     model = TipoDocumento
     template_name = 'listar_tipos_documentos.html'
     context_object_name = 'tipos_documentos'
-
-
-
-
 
 
 class ModificarTipoDocumentoView(LoginRequiredMixin,View):
@@ -277,13 +257,48 @@ def detalle_conversacion(request, conversacion_id):
 
     return render(request, 'detalle_conversacion.html', {'conversacion': conversacion, 'mensajes': mensajes, 'form': form})
 
+@login_required
+def eliminar_conversacion(request, conversacion_id):
+    # Obtener la conversación por su ID o retornar un error 404 si no existe
+    conversacion = get_object_or_404(Conversacion, id=conversacion_id)
+
+    if request.method == 'POST':
+        # Eliminar la conversación
+        conversacion.delete()
+        # Redireccionar a la lista de conversaciones después de eliminar
+        return redirect('lista_conversaciones')
+
+    return render(request, 'eliminar_conversacion.html', {'conversacion': conversacion})
+
+
+
 def subeAvatar(request):
     avatar = request.user.avatar
     if request.method == 'POST':
         form = AvatarForm(request.POST, request.FILES, instance=avatar)
         if form.is_valid():
             form.save()
-            return redirect('listar_propiedades') 
+            return redirect('subeavatar') 
     else:
         form = AvatarForm(instance=avatar)
     return render(request, 'upload_avatar.html', {'form': form})
+
+
+@login_required
+def about(request):
+    return render(request, 'about.html')
+
+@login_required
+def cambiar_password(request):
+    if request.method == 'POST':
+        form = PasswordChangeForm(request.user, request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, 'Tu contraseña ha sido cambiada con éxito.')
+            return redirect('cambiar_password')
+        else:
+            messages.error(request, 'Por favor corrige el error abajo.')
+    else:
+        form = PasswordChangeForm(request.user)
+    return render(request, 'cambiar_password.html', {'form': form})
+    

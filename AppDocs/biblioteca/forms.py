@@ -10,9 +10,9 @@ from .models import CustomUser
 from django.forms import ModelForm
 
 class CustomUserForm(UserChangeForm):
-    class Meta:
-        model = CustomUser
-        fields = ['username', 'first_name', 'last_name', 'email', 'profesion', 'dni']
+     class Meta:
+         model = CustomUser
+         fields = ['username', 'first_name', 'last_name', 'email']
 
 
 
@@ -20,7 +20,7 @@ class AvatarForm(ModelForm):
     imagen= forms.ImageField(required=False)
     class Meta:
         model = Avatar
-        fields = ['imagen']
+        fields = ['imagen', 'profesion', 'dni','username', 'first_name', 'last_name', 'email']
         
 
 class CustomLoginForm(AuthenticationForm):
