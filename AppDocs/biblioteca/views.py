@@ -4,59 +4,21 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.views.generic.list import ListView
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import CreateView
-from .models import Propiedad, Documento,Propietario,Conversacion,Mensaje
+from .models import Propiedad, Documento,Propietario
 from .forms import DocumentoForm,PropietarioForm,PropiedadForm
 from django.urls import reverse
 from django.urls import reverse_lazy
-from django.contrib.auth.views import LoginView
 from django.views.generic.edit import DeleteView
 from django.urls import reverse_lazy
 from .models import TipoDocumento
-from .forms import TipoDocumentoForm,AvatarForm
+from .forms import TipoDocumentoForm
 from django.views.generic import View
 from django.contrib.auth.mixins import LoginRequiredMixin
-from django.contrib.auth import authenticate, login,logout
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from .forms import MensajeForm,ConversacionForm, EnviarMensajeForm
-
-from django.contrib.auth.forms import UserCreationForm
-from .models import Avatar
-from .models import CustomUser
-from .forms import CustomUserForm
-from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 
-def login_view(request):
-    if request.method == 'POST':
-        username = request.POST['username']
-        password = request.POST['password']
-        user = authenticate(username=username, password=password)
-        if user is not None:
-            login(request, user)
-            return redirect('listar_propiedades')  # Redirigir al usuario a la página de inicio después de un login exitoso
-        else:
-            # Mostrar mensaje de error si el login no es válido
-            error_message = "Nombre de usuario o contraseña incorrectos."
-            return render(request, 'login.html', {'error_message': error_message})
-    return render(request, 'login.html')
 
-def logout_view(request):
-    # Vista para realizar el logout (opcional)
-    logout(request)
-    return redirect('login')
-
-def registro_usuario(request):
-    if request.method == 'POST':
-        form = UserCreationForm(request.POST)
-        if form.is_valid():
-            form.save()
-            username = form.cleaned_data.get('username')
-            messages.success(request, f'Usuario {username} creado con éxito. Por favor, inicia sesión.')
-            return redirect('registro_usuario')
-    else:
-        form = UserCreationForm()
-    return render(request, 'registro_usuario.html', {'form': form})
 
 
 
@@ -101,7 +63,8 @@ class CrearPropietarioView(LoginRequiredMixin,CreateView):
     model = Propietario
     form_class = PropietarioForm
     template_name = 'crear_propietario.html'
-    success_url = reverse_lazy('crear_propietario')
+    success_url = reverse_lazy('listar_propietarios')
+
 
 
 class ListarPropietariosView(LoginRequiredMixin,ListView):    
@@ -122,15 +85,13 @@ class ModificarPropietarioView(LoginRequiredMixin,UpdateView):
     model = Propietario
     form_class = PropietarioForm
     template_name = 'modificar_propietario.html'
-    success_url = reverse_lazy('listar_propietarios')
-    # No es necesario el método form_valid
-    # ...
+    success_url = reverse_lazy('listar_propietarios')    
 
 class CrearPropiedadView(LoginRequiredMixin,CreateView):
     model = Propiedad
     form_class = PropiedadForm
     template_name = 'crear_propiedad.html'
-    success_url = reverse_lazy('crear_propiedad')
+    success_url = reverse_lazy('listar_propiedades')
 
 
 class EliminarPropiedadView(LoginRequiredMixin,DeleteView):
@@ -138,10 +99,8 @@ class EliminarPropiedadView(LoginRequiredMixin,DeleteView):
     template_name = 'eliminar_propiedad.html'
     success_url = reverse_lazy('listar_propiedades')
 
-    def form_valid(self, form):
-        # Obtener la propiedad a eliminar
-        propiedad = self.get_object()
-        # Eliminar la propiedad
+    def form_valid(self, form):        
+        propiedad = self.get_object()        
         propiedad.delete()
         return redirect(self.success_url)
 
@@ -152,8 +111,7 @@ class ModificarPropiedadView(LoginRequiredMixin,UpdateView):
     template_name = 'modificar_propiedad.html'
     success_url = reverse_lazy('listar_propiedades')
 
-    def form_valid(self, form):
-        # Guardar los cambios en la propiedad
+    def form_valid(self, form):        
         propiedad = form.save()
         return super().form_valid(form)
 
@@ -200,105 +158,11 @@ class EliminarTipoDocumentoView(LoginRequiredMixin,View):
         tipo_documento.delete()
         return redirect(self.success_url)
 
-
-
-
-
-
-
-@login_required
-def lista_conversaciones(request):    
-    conversaciones = Conversacion.objects.filter(participantes=request.user)   
-    
-    print(conversaciones)
-    return render(request, 'lista_conversaciones.html', {'conversaciones': conversaciones})
-
-@login_required
-def enviar_mensaje(request, conversacion_id):
-    conversacion = get_object_or_404(Conversacion, id=conversacion_id, participantes=request.user)
-    form = MensajeForm(request.POST or None)
-    
-    if request.method == 'POST' and form.is_valid():
-        mensaje = form.save(commit=False)
-        mensaje.conversacion = conversacion
-        mensaje.remitente = request.user
-        mensaje.save()
-        return redirect('detalle_conversacion', conversacion_id=conversacion_id)
-
-    return render(request, 'enviar_mensaje.html', {'conversacion': conversacion, 'form': form})
-
-@login_required
-def crear_conversacion(request):
-    if request.method == 'POST':
-        form = ConversacionForm(request.POST, user=request.user)
-        if form.is_valid():
-            conversacion = form.save()
-            # Imprime el ID de la nueva conversación para verificar que se está generando y guardando correctamente
-            print(f"ID de la nueva conversación: {conversacion.id}")
-            return redirect('detalle_conversacion', conversacion_id=conversacion.id)
-    else:
-        form = ConversacionForm(user=request.user)
-
-    return render(request, 'crear_conversacion.html', {'form': form})
-
-@login_required
-def detalle_conversacion(request, conversacion_id):
-    conversacion = get_object_or_404(Conversacion, id=conversacion_id, participantes=request.user)
-    mensajes = Mensaje.objects.filter(conversacion=conversacion)
-
-    if request.method == 'POST':
-        form = EnviarMensajeForm(request.POST)
-        if form.is_valid():
-            mensaje = Mensaje(contenido=form.cleaned_data['contenido'], conversacion=conversacion, remitente=request.user)
-            mensaje.save()
-            return redirect('detalle_conversacion', conversacion_id=conversacion_id)
-    else:
-        form = EnviarMensajeForm()
-
-    return render(request, 'detalle_conversacion.html', {'conversacion': conversacion, 'mensajes': mensajes, 'form': form})
-
-@login_required
-def eliminar_conversacion(request, conversacion_id):
-    # Obtener la conversación por su ID o retornar un error 404 si no existe
-    conversacion = get_object_or_404(Conversacion, id=conversacion_id)
-
-    if request.method == 'POST':
-        # Eliminar la conversación
-        conversacion.delete()
-        # Redireccionar a la lista de conversaciones después de eliminar
-        return redirect('lista_conversaciones')
-
-    return render(request, 'eliminar_conversacion.html', {'conversacion': conversacion})
-
-
-
-def subeAvatar(request):
-    avatar = request.user.avatar
-    if request.method == 'POST':
-        form = AvatarForm(request.POST, request.FILES, instance=avatar)
-        if form.is_valid():
-            form.save()
-            return redirect('subeavatar') 
-    else:
-        form = AvatarForm(instance=avatar)
-    return render(request, 'upload_avatar.html', {'form': form})
-
-
 @login_required
 def about(request):
     return render(request, 'about.html')
 
-@login_required
-def cambiar_password(request):
-    if request.method == 'POST':
-        form = PasswordChangeForm(request.user, request.POST)
-        if form.is_valid():
-            user = form.save()
-            messages.success(request, 'Tu contraseña ha sido cambiada con éxito.')
-            return redirect('cambiar_password')
-        else:
-            messages.error(request, 'Por favor corrige el error abajo.')
-    else:
-        form = PasswordChangeForm(request.user)
-    return render(request, 'cambiar_password.html', {'form': form})
+
+
+
     

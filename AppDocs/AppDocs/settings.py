@@ -42,6 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'biblioteca',
+    'acounts',
+    'chat',
 ]
 
 MIDDLEWARE = [
@@ -139,7 +141,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 
-LOGIN_URL = '/login/'  # URL a la vista de login
+LOGIN_URL = '/acounts/login/'  # URL a la vista de login
 LOGIN_REDIRECT_URL = '/'  # URL a la que se redirigirá al usuario después de un login exitoso
 
 
